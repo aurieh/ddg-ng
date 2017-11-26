@@ -9,14 +9,17 @@ import (
 	"net/url"
 )
 
+// DDGURL ddg api url
 const DDGURL = "https://api.duckduckgo.com/?q=%s&o=json&kp=%d&no_redirect=1&no_html=1&d=%d&t=%s"
 
+// Icon duckduckgo result icon
 type Icon struct {
 	URL    string
 	Height interface{} `json:"Height,omitempty"`
 	Width  interface{} `json:"Width,omitempty"`
 }
 
+// Topic related topic
 type Topic struct {
 	Result   string
 	Icon     Icon
@@ -24,6 +27,7 @@ type Topic struct {
 	Text     string
 }
 
+// Answer ddg api answer
 type Answer struct {
 	Abstract       string
 	AbstractText   string
@@ -45,6 +49,7 @@ type Answer struct {
 	Redirect string
 }
 
+// Query query a single answer
 func Query(client *http.Client, query string, useragent string, safesearch bool, meanings bool) (*Answer, error) {
 	answer := &Answer{}
 

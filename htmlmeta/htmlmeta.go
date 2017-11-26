@@ -8,6 +8,7 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
+// New create new MetaParser
 func New(client *http.Client, url string) (*MetaParser, error) {
 	resp, err := client.Get(url)
 	if err != nil {
@@ -22,10 +23,12 @@ func New(client *http.Client, url string) (*MetaParser, error) {
 	}, nil
 }
 
+// MetaParser html meta info parser
 type MetaParser struct {
 	Root *html.Node
 }
 
+// GetTitle get website head title
 func (p *MetaParser) GetTitle() string {
 	matcher := func(n *html.Node) bool {
 		if n.DataAtom == atom.Title {
@@ -40,6 +43,7 @@ func (p *MetaParser) GetTitle() string {
 	return scrape.Text(titles[0])
 }
 
+// GetMeta get head meta tag
 func (p *MetaParser) GetMeta(name string, attr string) string {
 	matcher := func(n *html.Node) bool {
 		return n.DataAtom == atom.Meta && scrape.Attr(n, "name") == name
@@ -51,6 +55,7 @@ func (p *MetaParser) GetMeta(name string, attr string) string {
 	return scrape.Attr(tags[0], attr)
 }
 
+// GetOGPMeta get ogp meta tag
 func (p *MetaParser) GetOGPMeta(prop string) string {
 	if !strings.HasPrefix(prop, "og:") {
 		prop = "og:" + prop

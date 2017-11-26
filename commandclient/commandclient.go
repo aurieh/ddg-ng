@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Context stores command context
 type Context struct {
 	Client  *CommandClient
 	Session *discordgo.Session
@@ -13,7 +14,8 @@ type Context struct {
 	Args    []string
 }
 
-func New(prefix string/* , db *sql.DB */) *CommandClient {
+// New creates new command client
+func New(prefix string /* , db *sql.DB */) *CommandClient {
 	return &CommandClient{
 		Prefix:   prefix,
 		Register: make(map[string]func(ctx *Context)),
@@ -21,12 +23,14 @@ func New(prefix string/* , db *sql.DB */) *CommandClient {
 	}
 }
 
+// CommandClient session/command  register
 type CommandClient struct {
 	Prefix   string
 	Register map[string]func(ctx *Context)
 	// DB       *sql.DB
 }
 
+// Parse parses a message event
 func (p *CommandClient) Parse(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if !strings.HasPrefix(m.Content, p.Prefix) {
 		return

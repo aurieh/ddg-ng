@@ -12,6 +12,7 @@ import (
 
 var startup = time.Now()
 
+// GetStatsString get a formatted stats string
 func GetStatsString() string {
 	stats := runtime.MemStats{}
 	runtime.ReadMemStats(&stats)
