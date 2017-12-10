@@ -12,6 +12,14 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+const TruncateSuffix = "..."
+func truncate(str string, length int) string {
+	if len(str) <= length {
+		return str
+	}
+	return str[:length-len(TruncateSuffix)] + TruncateSuffix
+}
+
 func getAnswerURL(answer *duckduckgo.Answer) string {
 	if answer.AbstractURL != "" {
 		return answer.AbstractURL
@@ -31,7 +39,7 @@ func getAnswerTitle(query string, answer *duckduckgo.Answer) string {
 	} else if answer.Heading != "" {
 		return answer.Heading
 	}
-	return ""
+	return query
 }
 
 var searchEngines = []string{"bing.com", "google.", "startpage.com", "duckduckgo.com", "qwant.com"}
@@ -57,10 +65,10 @@ func addAnswerMeta(url string, embed *discordgo.MessageEmbed) error {
 		return err
 	}
 	if embed.Title == "" {
-		embed.Title = metaparser.GetTitle()
+		embed.Title = truncate(metaparser.GetTitle(), 256)
 	}
 	if embed.Description == "" {
-		embed.Description = metaparser.GetMeta("description", "content")
+		embed.Description = truncate(metaparser.GetMeta("description", "content"), 2048)
 	}
 	if image := metaparser.GetOGPMeta("image"); image != "" {
 		embed.Image = &discordgo.MessageEmbedImage{
@@ -84,7 +92,7 @@ func createAnswerEmbed(query string, answer *duckduckgo.Answer, embed *discordgo
 	}
 
 	if answer.Definition != "" && embed.Description == "" {
-		embed.Description = answer.Definition
+		embed.Description = truncate(answer.Definition, 2048)
 	}
 
 	if answer.Image != "" && embed.Image == nil {
@@ -121,17 +129,17 @@ func createAnswerEmbed(query string, answer *duckduckgo.Answer, embed *discordgo
 			}
 		}
 		for _, topic := range topics[1:] {
-			if len(embed.Fields) > 19 {
+			if len(embed.Fields) > 24 {
 				break
 			}
 			field := &discordgo.MessageEmbedField{}
 			if topic.FirstURL != "" {
-				field.Value = topic.FirstURL
+				field.Value = truncate(topic.FirstURL, 1024)
 			} else {
 				field.Value = "[no url]"
 			}
 			if topic.Text != "" {
-				field.Name = topic.Text
+				field.Name = truncate(topic.Text, 256)
 				fields = append(fields, field)
 			}
 		}
@@ -141,7 +149,7 @@ func createAnswerEmbed(query string, answer *duckduckgo.Answer, embed *discordgo
 		embed.URL = "https://duckduckgo.com/c/" + url.QueryEscape(query)
 	}
 	if embed.Title == "" {
-		embed.Title = query
+		embed.Title = truncate(getAnswerTitle(query, answer), 256)
 	}
 
 	return nil
