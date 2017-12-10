@@ -34,7 +34,24 @@ func getAnswerTitle(query string, answer *duckduckgo.Answer) string {
 	return ""
 }
 
+var searchEngines = []string{"bing.com", "google.", "startpage.com", "duckduckgo.com", "qwant.com"}
+
+
+func isSearchEngine(url string) bool {
+	for _, sURL := range searchEngines {
+		if strings.Contains(url, sURL) {
+			return true
+		}
+	}
+	return false
+}
+
 func addAnswerMeta(url string, embed *discordgo.MessageEmbed) error {
+	// Don't bully search engines
+	if isSearchEngine(url) {
+		return nil
+	}
+
 	metaparser, err := htmlmeta.New(utils.Client, url)
 	if err != nil {
 		return err
@@ -130,20 +147,20 @@ func createAnswerEmbed(query string, answer *duckduckgo.Answer, embed *discordgo
 	return nil
 }
 
-// SearchCommand DDG search
-func SearchCommand(ctx *commandclient.Context) {
-	channel, err := ctx.Session.State.Channel(ctx.Message.ChannelID)
+// SendQueryResult sends an answer embed as a response to specified message
+func SendQueryResult(s *discordgo.Session, m *discordgo.MessageCreate, query string) {
+	channel, err := s.State.Channel(m.ChannelID)
 	isNSFW := false
 	if err != nil {
-		log.WithError(err).WithField("channel", ctx.Message.ChannelID).Errorln("failed to get channel from state")
+		log.WithError(err).WithField("channel", m.ChannelID).Errorln("failed to get channel from state")
+		return
 	} else if channel != nil {
 		isNSFW = channel.NSFW
 	}
-	query := strings.Join(ctx.Args, " ")
 	answer, err := duckduckgo.Query(utils.Client, "\\"+query, "ddg-ng/0.1", !isNSFW, true)
 	if err != nil {
 		log.WithError(err).Errorln("failed to fetch data from ddg")
-		ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, fmt.Sprintf("I've encountered an error while trying to access the DDG API: %s", err.Error()))
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("I've encountered an error while trying to access the DDG API: %s", err.Error()))
 		return
 	}
 	response := &discordgo.MessageEmbed{}
@@ -151,7 +168,12 @@ func SearchCommand(ctx *commandclient.Context) {
 		log.WithError(err).WithField("answer", answer).Errorln("failed to create an answer embed")
 		return
 	}
-	if _, err = ctx.Session.ChannelMessageSendEmbed(ctx.Message.ChannelID, response); err != nil {
+	if _, err = s.ChannelMessageSendEmbed(m.ChannelID, response); err != nil {
 		log.WithError(err).WithField("answer", answer).Errorln("failed to send a ddg answer embed")
 	}
+}
+
+// SearchCommand DDG search
+func SearchCommand(ctx *commandclient.Context) {
+	SendQueryResult(ctx.Session, ctx.Message, strings.Join(ctx.Args, " "))
 }

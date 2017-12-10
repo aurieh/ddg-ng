@@ -1,7 +1,6 @@
 package commandclient
 
 import (
-	// "database/sql"
 	"github.com/bwmarrin/discordgo"
 	"strings"
 )
@@ -15,11 +14,10 @@ type Context struct {
 }
 
 // New creates new command client
-func New(prefix string /* , db *sql.DB */) *CommandClient {
+func New(prefix string) *CommandClient {
 	return &CommandClient{
 		Prefix:   prefix,
 		Register: make(map[string]func(ctx *Context)),
-		// DB:       db,
 	}
 }
 
@@ -27,12 +25,21 @@ func New(prefix string /* , db *sql.DB */) *CommandClient {
 type CommandClient struct {
 	Prefix   string
 	Register map[string]func(ctx *Context)
-	// DB       *sql.DB
+	OnMissingPrefix func(s *discordgo.Session, m *discordgo.MessageCreate)
+	OnUnknownCommand func(s *discordgo.Session, m *discordgo.MessageCreate, args []string)
+	OnSuccessfulInvoke func(ctx *Context, command func(ctx *Context))
 }
 
 // Parse parses a message event
 func (p *CommandClient) Parse(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.Bot || m.Author.ID == s.State.User.ID {
+		return
+	}
+
 	if !strings.HasPrefix(m.Content, p.Prefix) {
+		if p.OnMissingPrefix != nil {
+			p.OnMissingPrefix(s, m)
+		}
 		return
 	}
 
@@ -42,11 +49,17 @@ func (p *CommandClient) Parse(s *discordgo.Session, m *discordgo.MessageCreate) 
 	}
 
 	if command, ok := p.Register[args[0]]; ok {
-		command(&Context{
+		ctx := &Context{
 			Client:  p,
 			Session: s,
 			Message: m,
 			Args:    args[1:],
-		})
+		}
+		command(ctx)
+		if p.OnSuccessfulInvoke != nil {
+			p.OnSuccessfulInvoke(ctx, command)
+		}
+	} else if p.OnUnknownCommand != nil {
+		p.OnUnknownCommand(s, m, args)
 	}
 }

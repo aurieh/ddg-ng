@@ -10,16 +10,14 @@ import (
 	"github.com/spf13/viper"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
-	// "database/sql"
-	// _ "github.com/lib/pq"
 	log "github.com/Sirupsen/logrus"
 )
 
 func init() {
 	pflag.String("token", "", "discord token")
 	pflag.Bool("debug", false, "debug level")
-	// pflag.String("db", "", "pgsql connection string")
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
@@ -27,9 +25,6 @@ func init() {
 
 	viper.BindEnv("token")
 	viper.BindEnv("debug")
-
-	// viper.SetDefault("db", "")
-	// viper.BindEnv("db")
 
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("ddg")
@@ -48,19 +43,13 @@ func init() {
 }
 
 func main() {
-	// if !viper.IsSet("db") {
-	// 	log.Fatalln("no db conn string specified")
-	// }
-	// db, err := sql.Open("postgres", viper.GetString("db"))
-	// if err != nil {
-	// 	log.WithError(err).Fatalln("failed while connecting to the database")
-	// }
-
 	if !viper.IsSet("token") {
 		log.Fatalln("no token specified")
 	}
 	dg, err := discordgo.New("Bot " + viper.GetString("token"))
 	client := commandclient.New("ddg!")
+	client.OnMissingPrefix = onMissingPrefix
+	client.OnUnknownCommand = onUnknownCommand
 	client.Register["stats"] = utilplugin.StatsCommand
 	client.Register["search"] = searchplugin.SearchCommand
 	client.Register["git"] = gitplugin.GitCommand
@@ -85,4 +74,20 @@ func main() {
 	if err != nil {
 		log.Errorln(err)
 	}
+}
+
+func onMissingPrefix(s *discordgo.Session, m *discordgo.MessageCreate) {
+	channel, err := s.State.Channel(m.ChannelID)
+	if err != nil {
+		log.WithError(err).WithField("channelID", m.ChannelID).Errorln("failed to get channel from state")
+		return
+	}
+	if channel.Type != discordgo.ChannelTypeDM {
+		return
+	}
+	searchplugin.SendQueryResult(s, m, m.Content)
+}
+
+func onUnknownCommand(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
+	searchplugin.SendQueryResult(s, m, strings.Join(args, " "))
 }
