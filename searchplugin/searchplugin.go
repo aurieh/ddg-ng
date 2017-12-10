@@ -56,13 +56,13 @@ func addAnswerMeta(url string, embed *discordgo.MessageEmbed) error {
 	return nil
 }
 
-func createAnswerEmbed(query string, answer *duckduckgo.Answer, embed *discordgo.MessageEmbed) {
+func createAnswerEmbed(query string, answer *duckduckgo.Answer, embed *discordgo.MessageEmbed) error {
 	// TODO: Clean up this logic
 	if url := getAnswerURL(answer); url != "" {
 		embed.URL = url
 		err := addAnswerMeta(url, embed)
 		if err != nil {
-			log.WithError(err).WithField("url", url).Errorln("error adding answer meta for url")
+			return err
 		}
 	}
 
@@ -95,7 +95,7 @@ func createAnswerEmbed(query string, answer *duckduckgo.Answer, embed *discordgo
 			embed.URL = topic.FirstURL
 			err := addAnswerMeta(topic.FirstURL, embed)
 			if err != nil {
-				log.WithError(err).WithField("topic", topic).Errorln("error adding answer meta for topic")
+				return err
 			}
 		}
 		if topic.Icon.URL != "" && embed.Image == nil {
@@ -127,6 +127,7 @@ func createAnswerEmbed(query string, answer *duckduckgo.Answer, embed *discordgo
 		embed.Title = query
 	}
 
+	return nil
 }
 
 // SearchCommand DDG search
@@ -146,7 +147,10 @@ func SearchCommand(ctx *commandclient.Context) {
 		return
 	}
 	response := &discordgo.MessageEmbed{}
-	createAnswerEmbed(query, answer, response)
+	if err = createAnswerEmbed(query, answer, response); err != nil {
+		log.WithError(err).WithField("answer", answer).Errorln("failed to create an answer embed")
+		return
+	}
 	if _, err = ctx.Session.ChannelMessageSendEmbed(ctx.Message.ChannelID, response); err != nil {
 		log.WithError(err).WithField("answer", answer).Errorln("failed to send a ddg answer embed")
 	}
