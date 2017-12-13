@@ -2,13 +2,5 @@ version: '3'
 
 services:
    ddg:
-      image: aurieh/ddg-ng
+      build: .
       env_file: ddg.env
-
-   # db:
-   #    image: postgres:alpine
-   #    hostname: db
-   #    environment:
-   #       - POSTGRES_PASSWORD=ddg
-   #       - POSTGRES_USER=ddg
-   #       - POSTGRES_DB=ddg
