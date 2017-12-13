@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/aurieh/ddg-ng/helpplugin"
 	"github.com/aurieh/ddg-ng/commandclient"
 	"github.com/aurieh/ddg-ng/gitplugin"
 	"github.com/aurieh/ddg-ng/searchplugin"
@@ -53,6 +54,12 @@ func main() {
 	client.Register["stats"] = utilplugin.StatsCommand
 	client.Register["search"] = searchplugin.SearchCommand
 	client.Register["git"] = gitplugin.GitCommand
+
+	// helpplugin
+	client.Register["addbot"] = helpplugin.AddbotCommand
+	client.Register["help"] = helpplugin.HelpCommand
+	client.Register["info"] = helpplugin.InfoCommand
+	client.Register["server"] = helpplugin.ServerCommand
 
 	if err != nil {
 		log.WithError(err).Fatalln("failed while creating a discord instance")

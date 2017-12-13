@@ -33,3 +33,9 @@ ddg
 
 # Config files
 ddg.env
+
+# Glide
+vendor
+
+# Logs
+*.log

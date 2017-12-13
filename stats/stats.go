@@ -3,6 +3,7 @@ package stats
 import (
 	"bytes"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 	"github.com/dustin/go-humanize"
 	"github.com/olekukonko/tablewriter"
 	"runtime"
@@ -13,7 +14,7 @@ import (
 var startup = time.Now()
 
 // GetStatsString get a formatted stats string
-func GetStatsString() string {
+func GetStatsString(s *discordgo.Session) string {
 	stats := runtime.MemStats{}
 	runtime.ReadMemStats(&stats)
 
@@ -29,6 +30,7 @@ func GetStatsString() string {
 	table.Append([]string{"Memory Allocated", humanize.Bytes(stats.Alloc)})
 	table.Append([]string{"Memory Total", humanize.Bytes(stats.Sys)})
 	table.Append([]string{"Memory GCed", humanize.Bytes(stats.TotalAlloc)})
+	table.Append([]string{"Guilds", strconv.Itoa(len(s.State.Guilds))})
 	table.Append([]string{"Up Since", humanize.Time(startup)})
 
 	fmt.Fprintln(buf, "```")

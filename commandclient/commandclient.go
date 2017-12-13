@@ -21,7 +21,7 @@ func New(prefix string) *CommandClient {
 	}
 }
 
-// CommandClient session/command  register
+// CommandClient session/command register
 type CommandClient struct {
 	Prefix   string
 	Register map[string]func(ctx *Context)
@@ -30,20 +30,34 @@ type CommandClient struct {
 	OnSuccessfulInvoke func(ctx *Context, command func(ctx *Context))
 }
 
+// ParsePrefix returns length of prefix if present
+func (p *CommandClient) ParsePrefix(s *discordgo.Session, content string) int {
+	if strings.HasPrefix(content, p.Prefix) {
+		return len(p.Prefix)
+	}
+	content = strings.Replace(content, "<@!", "<@", -1)
+	mention := s.State.User.Mention()
+	if strings.HasPrefix(content, mention) {
+		return len(mention) + 1
+	}
+	return 0
+}
+
 // Parse parses a message event
 func (p *CommandClient) Parse(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.Bot || m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	if !strings.HasPrefix(m.Content, p.Prefix) {
+	plen := p.ParsePrefix(s, m.Content)
+	if plen == 0 {
 		if p.OnMissingPrefix != nil {
 			p.OnMissingPrefix(s, m)
 		}
 		return
 	}
 
-	args := strings.Split(strings.TrimSpace(m.Content[len(p.Prefix):]), " ")
+	args := strings.Split(strings.TrimSpace(m.Content[plen:]), " ")
 	if len(args) < 1 {
 		return
 	}

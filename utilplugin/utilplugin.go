@@ -8,7 +8,7 @@ import (
 
 // StatsCommand get bot stats
 func StatsCommand(ctx *commandclient.Context) {
-	statstring := stats.GetStatsString()
+	statstring := stats.GetStatsString(ctx.Session)
 	if _, err := ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, statstring); err != nil {
 		log.WithError(err).WithField("stats", statstring).Errorln("failed to send stats")
 	}

@@ -1,22 +1,32 @@
 FROM golang:alpine
 
+# Change when glide updates
+ENV GLIDE_VER v0.13.1
 
+# Install glide
 RUN \
-	apk add --no-cache --virtual .build-deps git && \
-	go-wrapper download github.com/yhat/scrape && \
-	go-wrapper download github.com/lib/pq && \
-	go-wrapper download github.com/spf13/viper && \
-	go-wrapper download github.com/spf13/pflag && \
-	go-wrapper download github.com/Sirupsen/logrus && \
-	go-wrapper download github.com/bwmarrin/discordgo && \
-	go-wrapper download github.com/dustin/go-humanize && \
-	go-wrapper download github.com/olekukonko/tablewriter
+	apk add -q --no-cache --virtual .build-deps git && \
+	go get github.com/Masterminds/glide                 && \
+	cd ${GOPATH}/src/github.com/Masterminds/glide       && \
+	TAG=$(git tag | grep ${GLIDE_VER} | sort | tail -1) && \
+	git checkout -q ${TAG}                                 && \
+	go install
 
-COPY . $GOPATH/src/github.com/aurieh/ddg-ng/
-
-RUN \
-	go-wrapper install github.com/aurieh/ddg-ng && \
-	apk del .build-deps
-
+# First copy glide dep files
+# so that we don't reinstall our deps
+# on each build
+# changes in either of these files will trigger dep rebuild
 WORKDIR $GOPATH/src/github.com/aurieh/ddg-ng/
+COPY ./glide.yaml .
+COPY ./glide.lock .
+
+RUN glide --no-color install
+
+# Copy over source
+COPY . .
+
+# Install, build and remove deps
+RUN go-wrapper install github.com/aurieh/ddg-ng && \
+	apk del -q .build-deps
+
 ENTRYPOINT ["go-wrapper", "run"]
