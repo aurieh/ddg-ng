@@ -50,6 +50,11 @@ func (p *CommandClient) Parse(s *discordgo.Session, m *discordgo.MessageCreate) 
 	}
 
 	plen := p.ParsePrefix(s, m.Content)
+	// @ddg without anything else can trigger a panic otherwise
+	if plen >= len(m.Content) {
+		return
+	}
+
 	if plen == 0 {
 		if p.OnMissingPrefix != nil {
 			p.OnMissingPrefix(s, m)
