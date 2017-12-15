@@ -1,5 +1,5 @@
 hash: 55ef7dd4c17a664ed7bfae54642ee60518381ea739e13749cf5e4d0f24101a2c
-updated: 2017-12-11T00:44:45.260917972+02:00
+updated: 2017-12-15T23:09:00.729163709+02:00
 imports:
 - name: github.com/bwmarrin/discordgo
   version: 2fda7ce223a66a5b70b66987c22c3c94d022ee66
@@ -54,17 +54,17 @@ imports:
   - salsa20/salsa
   - ssh/terminal
 - name: golang.org/x/net
-  version: dc871a5d77e227f5bbf6545176ef3eeebf87e76e
+  version: d866cfc389cec985d6fda2859936a575a55a3ab6
   subpackages:
   - html
   - html/atom
 - name: golang.org/x/sys
-  version: b8f5ef32195cae6470b728e8ca677f0dbed1a004
+  version: d5840adf789d732bc8b00f37b26ca956a7cc8e79
   subpackages:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 3b24cac7bc3a458991ab409aa2a339ac9e0d60d6
+  version: d5a9226ed7dd70cade6ccae9d37517fe14dd9fee
   subpackages:
   - transform
   - unicode/norm

@@ -1,0 +1,15 @@
+language: go
+go:
+  - 1.x
+before_install:
+  - GLIDE_TAG=v0.13.1
+  - GLIDE_DOWNLOAD="https://github.com/Masterminds/glide/releases/download/$GLIDE_TAG/glide-$GLIDE_TAG-linux-amd64.tar.gz"
+  - curl -L $GLIDE_DOWNLOAD | tar -xvz
+  - export PATH=$PATH:$PWD/linux-amd64/
+  - glide update
+  - glide install
+  - go get -v github.com/alecthomas/gometalinter
+  - gometalinter --install
+script:
+  - go build
+  - gometalinter ./... --config .gometalinter.json

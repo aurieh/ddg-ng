@@ -1,3 +1,6 @@
 {
+    "Enable": ["unparam", "unused", "staticcheck"],
+    "Skip": ["vendor"],
+    "Disable": ["aligncheck"],
     "Exclude": ["Errors unhandled.+(gas)", "declaration of \"err\" shadows", "error return value not checked \\(defer"]
 }
