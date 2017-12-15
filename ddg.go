@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/aurieh/ddg-ng/helpplugin"
+	log "github.com/Sirupsen/logrus"
 	"github.com/aurieh/ddg-ng/commandclient"
 	"github.com/aurieh/ddg-ng/gitplugin"
+	"github.com/aurieh/ddg-ng/helpplugin"
 	"github.com/aurieh/ddg-ng/searchplugin"
 	"github.com/aurieh/ddg-ng/utilplugin"
 	"github.com/bwmarrin/discordgo"
@@ -13,9 +14,9 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-	log "github.com/Sirupsen/logrus"
 )
 
+// nolint: errcheck, gas
 func init() {
 	pflag.String("token", "", "discord token")
 	pflag.Bool("debug", false, "debug level")

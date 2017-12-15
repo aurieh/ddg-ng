@@ -1,11 +1,11 @@
 package htmlmeta
 
 import (
-	"strings"
-	"net/http"
 	"github.com/yhat/scrape"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
+	"net/http"
+	"strings"
 )
 
 // New create new MetaParser
@@ -31,10 +31,7 @@ type MetaParser struct {
 // GetTitle get website head title
 func (p *MetaParser) GetTitle() string {
 	matcher := func(n *html.Node) bool {
-		if n.DataAtom == atom.Title {
-			return true
-		}
-		return false
+		return n.DataAtom == atom.Title
 	}
 	titles := scrape.FindAll(p.Root, matcher)
 	if len(titles) == 0 {

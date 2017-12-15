@@ -2,6 +2,7 @@ package searchplugin
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/aurieh/ddg-ng/commandclient"
 	"github.com/aurieh/ddg-ng/duckduckgo"
 	"github.com/aurieh/ddg-ng/htmlmeta"
@@ -9,15 +10,15 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"net/url"
 	"strings"
-	log "github.com/Sirupsen/logrus"
 )
 
-const TruncateSuffix = "..."
+const truncateSuffix = "..."
+
 func truncate(str string, length int) string {
 	if len(str) <= length {
 		return str
 	}
-	return str[:length-len(TruncateSuffix)] + TruncateSuffix
+	return str[:length-len(truncateSuffix)] + truncateSuffix
 }
 
 func getAnswerURL(answer *duckduckgo.Answer) string {
@@ -43,7 +44,6 @@ func getAnswerTitle(query string, answer *duckduckgo.Answer) string {
 }
 
 var searchEngines = []string{"bing.com", "google.", "startpage.com", "duckduckgo.com", "qwant.com"}
-
 
 func isSearchEngine(url string) bool {
 	for _, sURL := range searchEngines {
@@ -108,7 +108,7 @@ func createAnswerEmbed(query string, answer *duckduckgo.Answer, embed *discordgo
 		topics = answer.Results
 	}
 
-	if topics != nil && len(topics) > 0 {
+	if len(topics) > 0 {
 		if embed.Description != "" {
 			embed.Description += "\n\nSee also:"
 		} else {
@@ -168,7 +168,10 @@ func SendQueryResult(s *discordgo.Session, m *discordgo.MessageCreate, query str
 	answer, err := duckduckgo.Query(utils.Client, "\\"+query, "ddg-ng/0.1", !isNSFW, true)
 	if err != nil {
 		log.WithError(err).Errorln("failed to fetch data from ddg")
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("I've encountered an error while trying to access the DDG API: %s", err.Error()))
+		_, err := s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("I've encountered an error while trying to access the DDG API: %s", err.Error())) // nolint: vetshadow
+		if err != nil {
+			log.WithError(err).Errorln("failed to send error message")
+		}
 		return
 	}
 	response := &discordgo.MessageEmbed{}

@@ -8,8 +8,8 @@ import (
 	"net/http"
 )
 
-// GithubRepo github repository info
-type GithubRepo struct {
+// Repo github repository info
+type Repo struct {
 	ArchiveURL       string `json:"archive_url"`
 	Archived         bool   `json:"archived"`
 	AssigneesURL     string `json:"assignees_url"`
@@ -108,9 +108,9 @@ type Owner struct {
 // GithubRepoURL api url
 const GithubRepoURL = "https://api.github.com/repos/%s/%s"
 
-// Repo get repo data
-func Repo(client *http.Client, username string, reponame string) (*GithubRepo, error) {
-	repo := &GithubRepo{}
+// GetRepo get repo data
+func GetRepo(client *http.Client, username string, reponame string) (*Repo, error) {
+	repo := &Repo{}
 	url := fmt.Sprintf(GithubRepoURL, username, reponame)
 	res, err := client.Get(url)
 	if err != nil {
@@ -122,7 +122,7 @@ func Repo(client *http.Client, username string, reponame string) (*GithubRepo, e
 		log.Errorln("get github repo status: " + res.Status)
 		return nil, errors.New("unknown error")
 	}
-	err = utils.GetJson(res, repo)
+	err = utils.GetJSON(res, repo)
 	if err != nil {
 		return nil, err
 	}

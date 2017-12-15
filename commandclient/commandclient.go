@@ -23,10 +23,10 @@ func New(prefix string) *CommandClient {
 
 // CommandClient session/command register
 type CommandClient struct {
-	Prefix   string
-	Register map[string]func(ctx *Context)
-	OnMissingPrefix func(s *discordgo.Session, m *discordgo.MessageCreate)
-	OnUnknownCommand func(s *discordgo.Session, m *discordgo.MessageCreate, args []string)
+	Prefix             string
+	Register           map[string]func(ctx *Context)
+	OnMissingPrefix    func(s *discordgo.Session, m *discordgo.MessageCreate)
+	OnUnknownCommand   func(s *discordgo.Session, m *discordgo.MessageCreate, args []string)
 	OnSuccessfulInvoke func(ctx *Context, command func(ctx *Context))
 }
 

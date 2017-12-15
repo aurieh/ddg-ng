@@ -12,8 +12,8 @@ var Client = &http.Client{
 	Timeout: time.Second * 2,
 }
 
-// GetJson simplifies JSON decoding
-func GetJson(res *http.Response, target interface{}) error {
+// GetJSON simplifies JSON decoding
+func GetJSON(res *http.Response, target interface{}) error {
 	defer res.Body.Close()
 	return json.NewDecoder(res.Body).Decode(target)
 }

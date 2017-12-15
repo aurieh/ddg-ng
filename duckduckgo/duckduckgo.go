@@ -81,7 +81,7 @@ func Query(client *http.Client, query string, useragent string, safesearch bool,
 		log.Errorln("duckduckgo answer status: " + res.Status)
 		return nil, errors.New("unknown error")
 	}
-	err = utils.GetJson(res, answer)
+	err = utils.GetJSON(res, answer)
 	if err != nil {
 		return nil, err
 	}

@@ -1,9 +1,9 @@
 package utilplugin
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/aurieh/ddg-ng/commandclient"
 	"github.com/aurieh/ddg-ng/stats"
-	log "github.com/Sirupsen/logrus"
 )
 
 // StatsCommand get bot stats

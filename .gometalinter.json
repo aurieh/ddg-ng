@@ -1,0 +1,3 @@
+{
+    "Exclude": ["Errors unhandled.+(gas)", "declaration of \"err\" shadows", "error return value not checked \\(defer"]
+}

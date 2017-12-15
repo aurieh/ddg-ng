@@ -2,6 +2,7 @@ package helpplugin
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/aurieh/ddg-ng/commandclient"
 	"strings"
 )
@@ -21,8 +22,12 @@ $$ ddg-ng $$
 Powered by DuckDuckGo {{https://duckduckgo.com/about}}
 ` + "```"
 
+// InfoCommand returns an info message
 func InfoCommand(ctx *commandclient.Context) {
-	ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, info)
+	_, err := ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, info)
+	if err != nil {
+		log.WithError(err).Errorln("couldn't send message")
+	}
 }
 
 const help = `
@@ -32,21 +37,36 @@ const help = `
 
 Available commands: %s
 `
+
+// HelpCommand returns command help (TODO)
 func HelpCommand(ctx *commandclient.Context) {
 	var commands []string
 	for name := range ctx.Client.Register {
 		commands = append(commands, "`"+name+"`")
 	}
 	message := fmt.Sprintf(help, strings.Join(commands, ", "))
-	ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, message)
+	_, err := ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, message)
+	if err != nil {
+		log.WithError(err).Errorln("couldn't send message")
+	}
 }
 
 const server = "_For more help on this bot, please visit: <https://discord.gg/011iDaqaFcbzbEsMz>_"
+
+// ServerCommand returns bot server
 func ServerCommand(ctx *commandclient.Context) {
-	ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, server)
+	_, err := ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, server)
+	if err != nil {
+		log.WithError(err).Errorln("couldn't send message")
+	}
 }
 
 const addbot = "_To add this bot to your server, use this link https://thats-a.link/e9bccc_"
+
+// AddbotCommand returns oauth link
 func AddbotCommand(ctx *commandclient.Context) {
-	ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, addbot)
+	_, err := ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, addbot)
+	if err != nil {
+		log.WithError(err).Errorln("couldn't send message")
+	}
 }
