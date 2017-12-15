@@ -1,4 +1,6 @@
 # DDG-NG
+![](https://travis-ci.org/aurieh/ddg-ng.svg?branch=master)
+
 A [DuckDuckGo](https://duckduckgo.com) bot for [Discord](https://discordapp.com).
 
 # Building with Docker
