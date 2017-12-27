@@ -71,6 +71,7 @@ func Query(client *http.Client, query string, useragent string, safesearch bool,
 	if err != nil {
 		return nil, err
 	}
+	req.Close = true
 	req.Header.Add("User-Agent", useragent)
 
 	res, err := client.Do(req)
