@@ -33,6 +33,7 @@ ddg
 
 # Config files
 ddg.env
+ddg.yaml
 
 # Glide
 vendor
