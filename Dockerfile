@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM golang:1.10-alpine as build-env
 
 # Change when glide updates
 ENV GLIDE_VER v0.13.1
@@ -25,8 +25,11 @@ RUN glide --no-color install
 # Copy over source
 COPY . .
 
-# Install, build and remove deps
-RUN go-wrapper install github.com/aurieh/ddg-ng && \
-	apk del -q .build-deps
+# Build and install the binary.
+RUN go install github.com/aurieh/ddg-ng
 
-ENTRYPOINT ["go-wrapper", "run"]
+# Make the minimal runtime container from the binary.
+FROM golang:1.10-alpine
+
+COPY --from=build-env /go/bin/ddg-ng /go/bin/
+ENTRYPOINT ["ddg-ng"]
