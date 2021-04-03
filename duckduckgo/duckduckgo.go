@@ -3,7 +3,7 @@ package duckduckgo
 import (
 	"errors"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/aurieh/ddg-ng/utils"
 	"net/http"
 	"net/url"
